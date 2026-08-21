@@ -165,7 +165,7 @@ Servicio Python puro (`services.py` en `quotes`), testeable, sin lógica en vist
 | **S4 — Reservas y pagos** | Checkout MP, webhooks, transacción atómica anti-sobreventa, emails de confirmación. | ✅ |
 | **S5 — Panel y calendario** | Dashboard con calendario de eventos, gestión de cotizaciones, métricas básicas. | ✅ |
 | **S6 — Infraestructura** | Dockerfile, docker-compose.prod, Nginx+SSL, CI/CD, scripts de VPS y guía (código listo). | 🔧 listo, falta VPS |
-| **S7 — Demo comercial** | Instancia demo con datos realistas del mercado local (menús, precios, zonas). Pulido de UI para venta en vivo. | ⏳ |
+| **S7 — Demo comercial** | Instancia demo con datos realistas del mercado local (menús, precios, zonas). Pulido de UI para venta en vivo. | ✅ (scripts/seed_s7_demo.py, tenant "Sabores del Litoral", 5 menus + 7 adicionales + 5 zonas, 13 cotizaciones demo, 2 senadas) |
 
 ---
 
