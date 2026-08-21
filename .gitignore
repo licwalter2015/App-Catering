@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Entorno y secretos
+.env
+
+# Django
+/staticfiles/
+/media/
+db.sqlite3
+
+# Tailwind / Node
+node_modules/
+theme/static/css/dist/
+
+# IDE / SO
+.vscode/
+.idea/
+Thumbs.db
+
+# Docker producción
+certbot/
+backups/
+*.sql
+*.sql.gz
+
+# Logs
+*.log

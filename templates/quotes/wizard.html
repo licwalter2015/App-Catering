@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}Cotizá tu evento — {{ tenant.name }}{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Cotizá tu evento</h1>
+      <p class="mt-2 text-gray-600">Completá los pasos para recibir tu presupuesto</p>
+    </div>
+
+    <form method="post" class="bg-white shadow-lg rounded-lg p-8">
+      {% csrf_token %}
+
+      <!-- Paso 1: Fecha -->
+      <div class="step" id="step-1">
+        <h2 class="text-xl font-semibold mb-4">1. Fecha del evento</h2>
+        <div class="mb-6">
+          {{ form.fecha_evento.label_tag }}
+          {{ form.fecha_evento }}
+        </div>
+        <button type="button" onclick="nextStep()" class="btn-brand">Siguiente</button>
+      </div>
+
+      <!-- Paso 2: Invitados -->
+      <div class="step hidden" id="step-2">
+        <h2 class="text-xl font-semibold mb-4">2. Cantidad de invitados</h2>
+        <div class="mb-6">
+          {{ form.cantidad_invitados.label_tag }}
+          {{ form.cantidad_invitados }}
+        </div>
+        <button type="button" onclick="prevStep()" class="btn-secondary mr-2">Anterior</button>
+        <button type="button" onclick="nextStep()" class="btn-brand">Siguiente</button>
+      </div>
+
+      <!-- Paso 3: Menú -->
+      <div class="step hidden" id="step-3">
+        <h2 class="text-xl font-semibold mb-4">3. Elegí tu menú</h2>
+        <div class="grid gap-4 mb-6">
+          {% for servicio in servicios %}
+          <label class="block border-2 rounded-lg p-4 cursor-pointer hover:border-brand transition">
+            <input type="radio" name="servicio_base" value="{{ servicio.id }}" class="mr-2" required>
+            <span class="font-semibold">{{ servicio.nombre }}</span>
+            <span class="text-gray-600 ml-2">${{ servicio.precio_por_persona }}/persona</span>
+            <p class="text-sm text-gray-500 mt-1">{{ servicio.descripcion }}</p>
+          </label>
+          {% endfor %}
+        </div>
+        <button type="button" onclick="prevStep()" class="btn-secondary mr-2">Anterior</button>
+        <button type="button" onclick="nextStep()" class="btn-brand">Siguiente</button>
+      </div>
+
+      <!-- Paso 4: Adicionales -->
+      <div class="step hidden" id="step-4">
+        <h2 class="text-xl font-semibold mb-4">4. Servicios adicionales</h2>
+        <div class="space-y-3 mb-6">
+          {% for adicional in adicionales %}
+          <label class="flex items-start border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+            <input type="checkbox" name="adicionales" value="{{ adicional.id }}" class="mt-1 mr-3 adicional-checkbox">
+            <div class="flex-1">
+              <span class="font-semibold">{{ adicional.nombre }}</span>
+              <span class="text-gray-600 ml-2">
+                {% if adicional.tipo_precio == 'POR_PERSONA' %}
+                  ${{ adicional.precio }}/persona
+                {% elif adicional.tipo_precio == 'POR_UNIDAD' %}
+                  ${{ adicional.precio }}/unidad
+                {% else %}
+                  ${{ adicional.precio }}
+                {% endif %}
+              </span>
+              <p class="text-sm text-gray-500">{{ adicional.descripcion }}</p>
+              {% if adicional.tipo_precio == 'POR_UNIDAD' %}
+              <input type="number" name="cantidad_{{ adicional.id }}" value="1" min="1" 
+                     class="border rounded px-2 py-1 w-20 mt-2 cantidad-input" data-adicional-id="{{ adicional.id }}">
+              {% endif %}
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+
+        <h3 class="text-lg font-semibold mb-3">Zona de entrega</h3>
+        <div class="grid gap-2 mb-6">
+          {% for zona in zonas %}
+          <label class="flex items-center border rounded-lg p-3 cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="zona_entrega" value="{{ zona.id }}" class="mr-3">
+            <span>{{ zona.nombre }}</span>
+            <span class="text-gray-600 ml-auto">
+              {% if zona.costo_traslado > 0 %}
+                +${{ zona.costo_traslado }}
+              {% else %}
+                Gratis
+              {% endif %}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+
+        <div id="total-preview" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p class="text-sm text-gray-600">Total estimado:</p>
+          <p class="text-2xl font-bold text-blue-900" id="total-amount">$0</p>
+        </div>
+
+        <button type="button" onclick="prevStep()" class="btn-secondary mr-2">Anterior</button>
+        <button type="button" onclick="nextStep()" class="btn-brand">Siguiente</button>
+      </div>
+
+      <!-- Paso 5: Datos de contacto -->
+      <div class="step hidden" id="step-5">
+        <h2 class="text-xl font-semibold mb-4">5. Tus datos de contacto</h2>
+        <div class="space-y-4 mb-6">
+          <div>
+            {{ form.nombre.label_tag }}
+            {{ form.nombre }}
+          </div>
+          <div>
+            {{ form.email.label_tag }}
+            {{ form.email }}
+          </div>
+          <div>
+            {{ form.telefono.label_tag }}
+            {{ form.telefono }}
+          </div>
+          <div>
+            {{ form.notas.label_tag }}
+            {{ form.notas }}
+          </div>
+        </div>
+        <button type="button" onclick="prevStep()" class="btn-secondary mr-2">Anterior</button>
+        <button type="submit" class="btn-brand">Enviar cotización</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: .75rem 1.5rem;
+  border-radius: .75rem;
+  font-weight: 600;
+  transition: background-color .15s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #d1d5db;
+}
+</style>
+
+<script>
+let currentStep = 1;
+const totalSteps = 5;
+
+function showStep(step) {
+  for (let i = 1; i <= totalSteps; i++) {
+    document.getElementById(`step-${i}`).classList.add('hidden');
+  }
+  document.getElementById(`step-${step}`).classList.remove('hidden');
+  currentStep = step;
+}
+
+function nextStep() {
+  if (currentStep < totalSteps) {
+    showStep(currentStep + 1);
+    if (currentStep === 4) {
+      updateTotal();
+    }
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  }
+}
+
+function updateTotal() {
+  const formData = new FormData();
+  formData.append('servicio_base', document.querySelector('input[name="servicio_base"]:checked')?.value || 0);
+  formData.append('cantidad_invitados', document.querySelector('input[name="cantidad_invitados"]')?.value || 0);
+  
+  document.querySelectorAll('.adicional-checkbox:checked').forEach(cb => {
+    formData.append('adicionales', cb.value);
+    const cantidadInput = document.querySelector(`input[name="cantidad_${cb.value}"]`);
+    if (cantidadInput) {
+      formData.append(`cantidad_${cb.value}`, cantidadInput.value);
+    }
+  });
+
+  fetch('{% url "calcular_total" %}', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: formData,
+  })
+  .then(response => response.text())
+  .then(html => {
+    document.getElementById('total-preview').innerHTML = html;
+  });
+}
+
+// Update total when adicionales change
+document.querySelectorAll('.adicional-checkbox, .cantidad-input').forEach(input => {
+  input.addEventListener('change', updateTotal);
+  input.addEventListener('input', updateTotal);
+});
+
+showStep(1);
+</script>
+{% endblock %}

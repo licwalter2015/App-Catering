@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .header {
+      background-color: #0f766e;
+      color: white;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .header p {
+      margin: 5px 0 0 0;
+      opacity: 0.9;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 5px;
+    }
+    .grid {
+      display: table;
+      width: 100%;
+    }
+    .grid-row {
+      display: table-row;
+    }
+    .grid-cell {
+      display: table-cell;
+      padding: 5px 0;
+      width: 50%;
+    }
+    .label {
+      color: #6b7280;
+      font-size: 11px;
+    }
+    .value {
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th {
+      background-color: #f3f4f6;
+      text-align: left;
+      padding: 8px;
+      border-bottom: 2px solid #d1d5db;
+    }
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .text-right {
+      text-align: right;
+    }
+    .totals {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+    .total-row.main {
+      font-size: 16px;
+      font-weight: bold;
+      border-top: 2px solid #d1d5db;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    .seña {
+      color: #0f766e;
+      font-weight: bold;
+    }
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 10px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Presupuesto #{{ cotizacion.id }}</h1>
+    <p>Generado el {{ cotizacion.created_at|date:"d/m/Y H:i" }}</p>
+  </div>
+
+  <div class="section">
+    <h2>Detalles del evento</h2>
+    <div class="grid">
+      <div class="grid-row">
+        <div class="grid-cell">
+          <div class="label">Cliente</div>
+          <div class="value">{{ cotizacion.cliente.nombre }}</div>
+        </div>
+        <div class="grid-cell">
+          <div class="label">Fecha</div>
+          <div class="value">{{ cotizacion.fecha_evento|date:"d/m/Y" }}</div>
+        </div>
+      </div>
+      <div class="grid-row">
+        <div class="grid-cell">
+          <div class="label">Invitados</div>
+          <div class="value">{{ cotizacion.cantidad_invitados }} personas</div>
+        </div>
+        <div class="grid-cell">
+          <div class="label">Estado</div>
+          <div class="value">{{ cotizacion.get_estado_display }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Detalle</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th class="text-right">Cant.</th>
+          <th class="text-right">Precio unit.</th>
+          <th class="text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cotizacion.items.all %}
+        <tr>
+          <td>{{ item.descripcion }}</td>
+          <td class="text-right">{{ item.cantidad }}</td>
+          <td class="text-right">${{ item.precio_unitario_snapshot|floatformat:2 }}</td>
+          <td class="text-right"><strong>${{ item.subtotal|floatformat:2 }}</strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="totals">
+    <div class="total-row">
+      <span>Subtotal:</span>
+      <span><strong>${{ cotizacion.subtotal|floatformat:2 }}</strong></span>
+    </div>
+    <div class="total-row main">
+      <span>Total:</span>
+      <span>${{ cotizacion.total|floatformat:2 }}</span>
+    </div>
+    <div class="total-row seña">
+      <span>Seña ({{ cotizacion.tenant.deposit_percentage }}%):</span>
+      <span>${{ cotizacion.seña|floatformat:2 }}</span>
+    </div>
+  </div>
+
+  {% if cotizacion.expira_en %}
+  <div class="footer">
+    Este presupuesto vence el {{ cotizacion.expira_en|date:"d/m/Y H:i" }}
+  </div>
+  {% endif %}
+</body>
+</html>

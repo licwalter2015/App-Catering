@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calendario - {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Calendario de Eventos</h1>
+                <p class="text-gray-600 mt-2">{{ nombre_mes }} {{ year }}</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="?year={{ mes_anterior.year }}&month={{ mes_anterior.month }}" 
+                   class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    ← Mes anterior
+                </a>
+                <a href="?year={{ mes_siguiente.year }}&month={{ mes_siguiente.month }}" 
+                   class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Mes siguiente →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Encabezado de días -->
+        <div class="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
+            {% for dia in dias_semana %}
+            <div class="p-4 text-center font-semibold text-gray-700">{{ dia }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Semanas -->
+        <div class="grid grid-cols-7">
+            {% for semana in semanas %}
+                {% for dia in semana %}
+                    {% if dia %}
+                        <div class="min-h-32 p-2 border-r border-b border-gray-200 {% if dia.es_hoy %}bg-blue-50{% endif %}">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-semibold {% if dia.es_hoy %}text-blue-600{% else %}text-gray-700{% endif %}">
+                                    {{ dia.fecha.day }}
+                                </span>
+                                {% if dia.eventos %}
+                                <span class="px-2 py-0.5 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                                    {{ dia.eventos|length }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            {% for evento in dia.eventos %}
+                            <div class="mb-1 p-2 bg-green-100 rounded text-xs">
+                                <p class="font-semibold text-green-900 truncate">{{ evento.cotizacion.cliente.nombre }}</p>
+                                <p class="text-green-700">{{ evento.cotizacion.cantidad_invitados }} inv.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="min-h-32 p-2 border-r border-b border-gray-200 bg-gray-50"></div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mt-6 bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Eventos del mes</h2>
+        {% if semanas %}
+            {% with eventos_mes="" %}
+                {% for semana in semanas %}
+                    {% for dia in semana %}
+                        {% if dia and dia.eventos %}
+                            {% for evento in dia.eventos %}
+                            <div class="flex items-center justify-between p-4 mb-2 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="font-semibold text-gray-800">{{ evento.cotizacion.cliente.nombre }}</p>
+                                    <p class="text-sm text-gray-600">{{ evento.fecha|date:"d/m/Y" }} - {{ evento.cotizacion.cantidad_invitados }} invitados</p>
+                                    <p class="text-sm text-gray-600">{{ evento.cotizacion.servicio_base.nombre }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-gray-800">${{ evento.cotizacion.total|floatformat:0 }}</p>
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                                        Confirmado
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            {% endwith %}
+        {% else %}
+            <p class="text-gray-500 text-center py-8">No hay eventos este mes</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

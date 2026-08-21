@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cotizaciones - {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Cotizaciones</h1>
+        <p class="text-gray-600 mt-2">Gestión de presupuestos y reservas</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <form method="get" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-64">
+                <input type="text" name="q" value="{{ busqueda }}" 
+                       placeholder="Buscar por nombre o email..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div>
+                <select name="estado" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">Todos los estados</option>
+                    {% for value, label in estados %}
+                    <option value="{{ value }}" {% if estado_actual == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Filtrar
+            </button>
+            {% if estado_actual or busqueda %}
+            <a href="{% url 'lista_cotizaciones' %}" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                Limpiar
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Tabla de cotizaciones -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        {% if cotizaciones %}
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha evento</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servicio</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invitados</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creada</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for cotizacion in cotizaciones %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ cotizacion.cliente.nombre }}</div>
+                        <div class="text-sm text-gray-500">{{ cotizacion.cliente.email }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ cotizacion.fecha_evento|date:"d/m/Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ cotizacion.servicio_base.nombre }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ cotizacion.cantidad_invitados }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        ${{ cotizacion.total|floatformat:0 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full
+                            {% if cotizacion.estado == 'BORRADOR' %}bg-gray-100 text-gray-800
+                            {% elif cotizacion.estado == 'ENVIADA' %}bg-blue-100 text-blue-800
+                            {% elif cotizacion.estado == 'SENADA' %}bg-green-100 text-green-800
+                            {% elif cotizacion.estado == 'CONFIRMADA' %}bg-purple-100 text-purple-800
+                            {% elif cotizacion.estado == 'VENCIDA' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ cotizacion.get_estado_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ cotizacion.created_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'cotizacion_detail' cotizacion.token %}" 
+                           class="text-blue-600 hover:text-blue-900 mr-3">Ver</a>
+                        <a href="{% url 'cotizacion_pdf' cotizacion.token %}" 
+                           class="text-green-600 hover:text-green-900">PDF</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-12 text-center">
+            <p class="text-gray-500 text-lg">No se encontraron cotizaciones</p>
+            {% if estado_actual or busqueda %}
+            <a href="{% url 'lista_cotizaciones' %}" class="text-blue-600 hover:text-blue-800 mt-2 inline-block">
+                Limpiar filtros
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

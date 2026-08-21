@@ -1,0 +1,22 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: catering-db
+    restart: unless-stopped
+    environment:
+      # Solo desarrollo local: root sin contraseña.
+      # En producción se usan credenciales reales vía variables de entorno.
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: catering_saas
+    ports:
+      - "3308:3306"
+    volumes:
+      - catering_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  catering_db_data:

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tenant.name }} — Cotizá tu evento{% endblock %}
+
+{% block body %}
+<header class="bg-white border-b border-gray-200">
+    <nav class="max-w-5xl mx-auto flex items-center gap-4 px-6 py-4">
+        {% if tenant.logo %}
+            <img src="{{ tenant.logo.url }}" alt="{{ tenant.name }}" class="h-10 w-auto">
+        {% endif %}
+        <span class="text-xl font-bold text-brand">{{ tenant.name }}</span>
+    </nav>
+</header>
+
+<main class="max-w-5xl mx-auto px-6 py-20 text-center">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+        Cotizá tu evento en <span class="text-brand">2 minutos</span>
+    </h1>
+    <p class="mt-4 text-lg text-gray-600 max-w-xl mx-auto">
+        Elegí la fecha, la cantidad de invitados y tu menú. Recibí tu presupuesto al instante
+        y reservá la fecha con seña online.
+    </p>
+    <div class="mt-10">
+        <a href="{% url 'cotizador_wizard' %}" class="btn-brand text-lg">Empezar mi cotización</a>
+    </div>
+</main>
+{% endblock %}

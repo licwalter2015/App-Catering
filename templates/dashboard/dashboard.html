@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel de Control - {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Panel de Control</h1>
+        <p class="text-gray-600 mt-2">Resumen de actividad del mes</p>
+    </div>
+
+    <!-- Métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Cotizaciones del mes</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ total_cotizaciones }}</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Cotizaciones señadas</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ cotizaciones_senadas }}</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Tasa de conversión</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ tasa_conversion }}%</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Ingresos por señas</p>
+                    <p class="text-3xl font-bold text-gray-800">${{ ingresos_senas|floatformat:0 }}</p>
+                </div>
+                <div class="bg-yellow-100 rounded-full p-3">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Próximos eventos -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800">Próximos eventos</h2>
+                    <a href="{% url 'calendario' %}" class="text-sm text-blue-600 hover:text-blue-800">Ver calendario</a>
+                </div>
+            </div>
+            <div class="p-6">
+                {% if proximos_eventos %}
+                    <div class="space-y-4">
+                        {% for evento in proximos_eventos %}
+                        <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ evento.cotizacion.cliente.nombre }}</p>
+                                <p class="text-sm text-gray-600">{{ evento.fecha|date:"d/m/Y" }}</p>
+                                <p class="text-sm text-gray-600">{{ evento.cotizacion.cantidad_invitados }} invitados</p>
+                                <p class="text-sm text-gray-600">{{ evento.cotizacion.servicio_base.nombre }}</p>
+                            </div>
+                            <span class="px-3 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                                Confirmado
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-8">No hay eventos programados para los próximos 30 días</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Cotizaciones recientes -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800">Cotizaciones recientes</h2>
+                    <a href="{% url 'lista_cotizaciones' %}" class="text-sm text-blue-600 hover:text-blue-800">Ver todas</a>
+                </div>
+            </div>
+            <div class="p-6">
+                {% if cotizaciones_recientes %}
+                    <div class="space-y-3">
+                        {% for cotizacion in cotizaciones_recientes %}
+                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-800">{{ cotizacion.cliente.nombre }}</p>
+                                <p class="text-sm text-gray-600">{{ cotizacion.created_at|date:"d/m/Y H:i" }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-gray-800">${{ cotizacion.total|floatformat:0 }}</p>
+                                <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full
+                                    {% if cotizacion.estado == 'BORRADOR' %}bg-gray-100 text-gray-800
+                                    {% elif cotizacion.estado == 'ENVIADA' %}bg-blue-100 text-blue-800
+                                    {% elif cotizacion.estado == 'SENADA' %}bg-green-100 text-green-800
+                                    {% elif cotizacion.estado == 'CONFIRMADA' %}bg-purple-100 text-purple-800
+                                    {% elif cotizacion.estado == 'VENCIDA' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ cotizacion.get_estado_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-center py-8">No hay cotizaciones recientes</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
