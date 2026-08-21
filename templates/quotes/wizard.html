@@ -8,6 +8,21 @@
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900">Cotizá tu evento</h1>
       <p class="mt-2 text-gray-600">Completá los pasos para recibir tu presupuesto</p>
+      <p class="mt-1 text-xs text-gray-400">Demo: Sabores del Litoral — 30% seña · Respuesta inmediata</p>
+    </div>
+
+    <!-- Barra de progreso 5 pasos (mobile-first) -->
+    <div class="mb-8">
+      <div class="flex justify-between text-xs font-medium text-gray-500 mb-2">
+        <span id="step-label-1" class="text-brand font-bold">1 · Fecha</span>
+        <span id="step-label-2">2 · Invitados</span>
+        <span id="step-label-3">3 · Menú</span>
+        <span id="step-label-4">4 · Extras</span>
+        <span id="step-label-5">5 · Datos</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5">
+        <div id="progress-bar" class="bg-brand h-2.5 rounded-full transition-all duration-300" style="width: 20%"></div>
+      </div>
     </div>
 
     <form method="post" class="bg-white shadow-lg rounded-lg p-8">
@@ -154,9 +169,21 @@ const totalSteps = 5;
 function showStep(step) {
   for (let i = 1; i <= totalSteps; i++) {
     document.getElementById(`step-${i}`).classList.add('hidden');
+    const label = document.getElementById(`step-label-${i}`);
+    if (label) {
+      label.classList.remove('text-brand', 'font-bold');
+      label.classList.add('text-gray-500');
+    }
   }
   document.getElementById(`step-${step}`).classList.remove('hidden');
+  const activeLabel = document.getElementById(`step-label-${step}`);
+  if (activeLabel) {
+    activeLabel.classList.add('text-brand', 'font-bold');
+    activeLabel.classList.remove('text-gray-500');
+  }
+  document.getElementById('progress-bar').style.width = (step / totalSteps * 100) + '%';
   currentStep = step;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function nextStep() {
