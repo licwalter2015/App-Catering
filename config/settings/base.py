@@ -85,7 +85,6 @@ if os.environ.get('DATABASE_URL'):
         'default': dj_database_url.parse(
             os.environ['DATABASE_URL'],
             conn_max_age=600,
-            ssl_require=True,
         )
     }
 else:
@@ -150,7 +149,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Manifest rompe en Render si tailwind no compiló (css/dist no existe)
+if os.environ.get('RENDER'):
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+else:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
