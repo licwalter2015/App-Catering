@@ -1,2 +1,3 @@
 -r base.txt
 gunicorn>=23.0
+# Render necesita gunicorn; whitenoise/psycopg ya vienen de base.txt
