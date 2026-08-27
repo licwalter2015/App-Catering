@@ -22,7 +22,7 @@ services:
         fromDatabase:
           name: catering-db
           property: connectionString
-    healthCheckPath: /
+    healthCheckPath: /health/
 
 databases:
   - name: catering-db
