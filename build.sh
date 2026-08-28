@@ -30,7 +30,7 @@ import os
 from apps.tenants.models import Tenant, Domain
 from django.contrib.auth import get_user_model
 User = get_user_model()
-tenant, _ = Tenant.objects.get_or_create(slug="demo", defaults={"nombre": "Catering Demo", "activo": True})
+tenant, _ = Tenant.objects.get_or_create(slug="demo", defaults={"name": "Catering Demo", "is_active": True})
 Domain.objects.get_or_create(domain="demo.localhost", defaults={"tenant": tenant})
 # Dominio de Render (para que app-catering-s9mj.onrender.com resuelva tenant demo)
 for h in [os.environ.get("RENDER_EXTERNAL_HOSTNAME"), "app-catering-s9mj.onrender.com"]:
