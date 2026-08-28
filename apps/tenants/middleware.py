@@ -1,4 +1,4 @@
-from .models import Domain
+from .models import Domain, Tenant
 
 
 class TenantMiddleware:
@@ -30,6 +30,15 @@ class TenantMiddleware:
             return self.get_response(request)
         if domain and domain.tenant.is_active:
             request.tenant = domain.tenant
-        else:
-            request.tenant = None
+            return self.get_response(request)
+        # Fallback demo: en Render (*.onrender.com) sin Domain configurado, usar tenant demo
+        if host.endswith('.onrender.com'):
+            try:
+                demo = Tenant.objects.filter(slug='demo', is_active=True).first()
+                if demo:
+                    request.tenant = demo
+                    return self.get_response(request)
+            except Exception:
+                pass
+        request.tenant = None
         return self.get_response(request)
