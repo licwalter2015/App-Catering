@@ -18,9 +18,8 @@ if [ ${PIPESTATUS[0]} -ne 0 ]; then
   python manage.py collectstatic --no-input 2>&1 | head -n 50
 fi
 
-echo "==> migrate (crea tenants_domain etc.)"
-python manage.py migrate --no-input --verbosity 1
-echo "migrate exit: $?"
+echo "==> migrate (intento en build, si falla se reintenta en start)"
+python manage.py migrate --no-input --verbosity 1 || echo "migrate en build fallo (reintenta en start) exit:$?"
 
 echo "==> seed demo"
 python manage.py shell << 'PYEOF' || echo "seed shell fallo (no bloquea)"
